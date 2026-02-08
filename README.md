@@ -41,7 +41,10 @@ This exercise demonstrates 8 categories of silent bugs that primitive types allo
 ```
 ex-01/
   index.ts                      # CLI runner -- imports and orchestrates exercises
-  exercises/
+  explain/                      # In-class explanations (guided, with instructor)
+    001-brandedTypes.ts         # Branded Types introduction
+    003-bradedTypesTwo.ts       # Branded Types continued
+  exercises/                    # Personal work (students solve on their own)
     logger.ts                   # Shared error logging utility
     exercise1.ts                # Primitive Price Problem
     exercise2.ts                # Primitive Quantity Disaster
@@ -53,7 +56,22 @@ ex-01/
     exercise8.ts                # Email Validation Gap
 ```
 
-## Getting Started
+## Part 1 -- In-Class Explanations (`explain/`)
+
+The `explain/` folder contains guided examples that we walk through together during class. These files introduce the core concepts step by step:
+
+| File | Topic |
+| --- | --- |
+| `001-brandedTypes.ts` | Branded Types introduction |
+| `003-bradedTypesTwo.ts` | Branded Types continued |
+
+Read and follow along during the session -- these build the foundation you need for the exercises.
+
+## Part 2 -- Exercises (`exercises/`)
+
+The `exercises/` folder is your personal work. Each exercise demonstrates a silent bug caused by primitive types, and your job is to fix it using the patterns learned in class.
+
+### Getting Started
 
 ```bash
 # Install dependencies
@@ -65,7 +83,7 @@ npm run exercises
 
 Select an exercise (1-8) or run all of them (9). After running, open `silent_errors.log` to see every silent bug that was triggered.
 
-## How to Apply
+### How each exercise works
 
 Each exercise file follows the same structure:
 

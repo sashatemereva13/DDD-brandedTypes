@@ -1,4 +1,4 @@
-import { logError } from "./logger.js"
+import { logError } from "./logger.js";
 
 //============================================================================
 // EXERCISE 5: The Identity Crisis - Order IDs
@@ -11,19 +11,21 @@ import { logError } from "./logger.js"
 // concept -- it deserves its own type.
 //
 // HINT - Branded type + factory:
-//   type OrderId = string & { readonly __brand: unique symbol }
-//
-//   // Option A: Enforce a format (e.g., "ORD-" prefix + numeric)
-//   function createOrderId(raw: string): OrderId {
-//       if (!/^ORD-\d{5,}$/.test(raw))
-//           throw new Error("OrderId must match ORD-XXXXX format")
-//       return raw as OrderId
-//   }
+type OrderId = string & { readonly __brand: unique symbol };
+
+// Option A: Enforce a format (e.g., "ORD-" prefix + numeric)
+function createOrderId(raw: string): OrderId {
+  if (!/^ORD-\d{5,}$/.test(raw))
+    throw new Error("OrderId must match ORD-XXXXX format");
+  return raw as OrderId;
+}
 //
 //   // Option B: Generate guaranteed-unique IDs (UUID-based)
-//   function generateOrderId(): OrderId {
-//       return `ORD-${Date.now()}-${Math.random().toString(36).slice(2, 7)}` as OrderId
-//   }
+function generateOrderId(): OrderId {
+  return `ORD-${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2, 7)}` as OrderId;
+}
 //
 // For uniqueness across a collection, use a Repository pattern: the
 // Repository is responsible for ensuring no two Entities share an ID.
@@ -31,43 +33,39 @@ import { logError } from "./logger.js"
 // enforcement (Repository).
 // ============================================================================
 
+type Order = {
+  orderId: OrderId;
+  customerName: string;
+  total: number;
+};
+
 export function exercise5_IdentityCrisis() {
-	type Order = {
-		orderId: string // Just a string - could be anything!
-		customerName: string
-		total: number
-	}
+  // What makes a valid order ID? Nothing enforced!
+  const orders: Order[] = [
+    {
+      orderId: createOrderId("ORD-00001"),
+      customerName: "Alice",
+      total: 25,
+    },
+    {
+      orderId: createOrderId("ORD-00002"),
+      customerName: "Bob",
+      total: 30,
+    },
+    {
+      orderId: createOrderId("ORD-00003"), // Silent bug! Duplicate ID
+      customerName: "Charlie",
+      total: 15,
+    },
+    {
+      orderId: createOrderId("ORD-00004"), // Silent bug! Inconsistent format
+      customerName: "Diana",
+      total: 20,
+    },
+  ];
 
-	// TODO: Replace `string` with an OrderId branded type.
-	// Use a factory function that enforces a consistent format.
-	// Consider who is responsible for uniqueness (hint: Repository pattern).
-
-	// What makes a valid order ID? Nothing enforced!
-	const orders: Order[] = [
-		{
-			orderId: "", // Silent bug! Empty ID
-			customerName: "Alice",
-			total: 25,
-		},
-		{
-			orderId: "12345", // Is this valid?
-			customerName: "Bob",
-			total: 30,
-		},
-		{
-			orderId: "12345", // Silent bug! Duplicate ID
-			customerName: "Charlie",
-			total: 15,
-		},
-		{
-			orderId: "not-a-number", // Silent bug! Inconsistent format
-			customerName: "Diana",
-			total: 20,
-		},
-	]
-
-	logError(5, "Order ID chaos - duplicates, empty, inconsistent formats", {
-		orders,
-		issue: "Order IDs have no enforced format or uniqueness!",
-	})
+  logError(5, "Order ID chaos - duplicates, empty, inconsistent formats", {
+    orders,
+    issue: "Order IDs have no enforced format or uniqueness!",
+  });
 }

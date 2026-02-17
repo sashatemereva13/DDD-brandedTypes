@@ -23,6 +23,19 @@ import { logError } from "./logger.js";
 // make them explicit and impossible to bypass.
 // ============================================================================
 
+// ========================= DOMAIN LAYER ===================================================
+type Quantity = number & { readonly __brand: unique symbol };
+
+function createQuantity(n: number): Quantity {
+  if (!Number.isInteger(n)) throw new Error("Quantity must be a whole number");
+
+  if (n <= 0) throw new Error("Quantity must be positive");
+
+  if (n > 100) throw new Error("Quantity exceeds maximum per order");
+
+  return n as Quantity;
+}
+
 export function exercise2_PrimitiveQuantity() {
   type Order = {
     itemName: string;
@@ -36,21 +49,8 @@ export function exercise2_PrimitiveQuantity() {
     pricePerUnit: 15,
   };
 
-  // TODO: Replace `number` with a Quantity branded type.
-  // Both of the bugs below should become impossible:
-  //   quantity: -3       // <-- negative
-  //   quantity: 50000    // <-- exceeds business limit
-
-  type Quantity = number & { readonly __brand: unique symbol };
-  function createQuantity(n: number): Quantity {
-    if (!Number.isInteger(n))
-      throw new Error("Quantity must be a whole number");
-    if (n <= 0) throw new Error("Quantity must be positive");
-    if (n > 100) throw new Error("Quantity exceeds maximum per order");
-    return n as Quantity;
-  }
-
   const total = createQuantity(order.quantity) * order.pricePerUnit;
+
   logError(2, "Negative quantity allowed - restaurant owes customer money?", {
     order,
     calculatedTotal: total,
@@ -70,3 +70,10 @@ export function exercise2_PrimitiveQuantity() {
     issue: "Should we really accept an order for 50,000 coffees?",
   });
 }
+
+// normal order
+const normalOrder: Order = {
+  itemName: "Pizza",
+  quantity: createQuantity(2),
+  pricePerUnit: 15,
+};

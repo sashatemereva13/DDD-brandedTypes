@@ -53,7 +53,11 @@ export function exercise1_PrimitivePrice() {
   //   price: -50   // <-- should NOT be assignable to Price
   // Instead, force callers through createPrice(-50), which throws at runtime.
 
-  const total = orderItem.price * orderItem.quantity;
+  function multiplyPrice(price: Price, quantity: number): Price {
+    return createPrice(price * quantity);
+  }
+  const total = multiplyPrice(orderItem.price, orderItem.quantity);
+
   logError(1, "Negative price accepted without complaint", {
     item: orderItem.name,
     price: orderItem.price,

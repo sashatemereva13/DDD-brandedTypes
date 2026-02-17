@@ -38,7 +38,13 @@ class Money {
   }
 
   format(): string {
-    return `$${(this.cents / 100).toFixed(2)}`;
+    const sybmol = {
+      USD: "$",
+      EUR: "€",
+      GBP: "£",
+    }[this.currency];
+
+    return `${sybmol}${(this.cents / 100).toFixed(2)}`;
   }
 }
 //

@@ -1,36 +1,37 @@
 /*  USER REGISTRATION   */
 
 type User = {
-	name: any
-	email: string
-	phone: string
-	password: string
-}
+  name: any;
+  email: string;
+  phone: string;
+  password: string;
+};
 
 const createUser = (
-	name: any,
-	email: string,
-	phone: string,
-	password: string,
+  name: any,
+  email: string,
+  phone: string,
+  password: string,
 ): User => {
-	return {
-		name,
-		email,
-		phone,
-		password,
-	}
-}
-// CAREFUL ! This function is very flexible but also very error-prone. It accepts any strings !
+  return {
+    name,
+    email,
+    phone,
+    password,
+  };
+};
+// CAREFUL ! This function is very flexible but also very error-prone.
+// It accepts any strings !
 
 /*  manual tests   */
 const newUser = createUser(
-	true,
-	"alice@example.com",
-	"secret123",
-	"123-456-7890",
-)
+  true,
+  "alice@example.com",
+  "secret123",
+  "123-456-7890",
+);
 
-console.table(newUser)
+console.table(newUser);
 /*
 /*
 /*
@@ -46,9 +47,105 @@ console.table(newUser)
 /********/
 
 // TODO: 1. Type checks
-// TODO: 2. Validation checks (Factory Functions) return Phone Type with a simple string (weak validation)
-// TODO: 3. try-catch blocks around the calls to createPhone to handle potential validation errors gracefully, ensuring that the application can respond appropriately to invalid inputs without crashing.
-// TODO: 4. Branded Types to prevent accidental misuse of the createUser function with raw strings, enhancing type safety in the restaurant domain.
+type Brand<K, T> = K & { __brand: T };
+
+type UserName = Brand<string, "UserName">;
+type UserEmail = Brand<string, "UserEmail">;
+type UserPhone = Brand<string, "UserPhone">;
+type UserPassword = Brand<string, "UserPassword">;
+
+// TODO: 2. Validation checks (Factory Functions)
+// return Phone Type with a simple string (weak validation)
+
+const makeUserName = (value: string): UserName => {
+  if (!value || value.trim().length < 2 || value.trim().length > 50) {
+    throw new Error("Name must be between 2 and 50 characters");
+  }
+
+  const validNameRegex = /^[a-zA-Z\s-]+$/;
+  if (!validNameRegex.test(value)) {
+    throw new Error("Name can only contain letters, spaces, and hyphens");
+  }
+
+  return value as UserName;
+};
+
+const makeUserEmail = (email: string): UserEmail => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    throw new Error("Invalid email format");
+  }
+  return email as UserEmail;
+};
+
+const makeUserPhone = (phone: string): UserPhone => {
+  const phoneRegex = /^(?:(?:\+|00)33|0)[1-9](?:[\s.-]?\d{2}){4}$/;
+  if (!phoneRegex.test(phone)) {
+    throw new Error("Invalid phone number format");
+  }
+  return phone as UserPhone;
+};
+
+const makeUserPassword = (password: string): UserPassword => {
+  if (password.length < 8) {
+    throw new Error("Password must be at least 8 characters long");
+  }
+  if (!/[A-Z]/.test(password)) {
+    throw new Error("Password must contain at least one uppercase letter");
+  }
+  if (!/[a-z]/.test(password)) {
+    throw new Error("Password must contain at least one lowercase letter");
+  }
+  if (!/[0-9]/.test(password)) {
+    throw new Error("Password must contain at least one digit");
+  }
+  if (!/[@$!%*?&]/.test(password)) {
+    throw new Error(
+      "Password must contain at least one special character (@$!%*?&)",
+    );
+  }
+  return password as UserPassword;
+};
+
+// TODO: 3. try-catch blocks around the calls to createPhone
+// to handle potential validation errors gracefully, ensuring
+// that the application can respond appropriately to invalid inputs without crashing.
+
+try {
+  const name = makeUserName("Alice Smith");
+  const email = makeUserEmail("alice@example.com");
+  const phone = makeUserPhone("123-456-7890");
+  const password = makeUserPassword("Secret123!");
+
+  const newUser = createUser(name, email, phone, password);
+  console.table(newUser);
+} catch (error) {
+  console.error("Error creating user:", error);
+}
+
+// TODO: 4. Branded Types to prevent accidental misuse of the createUser
+// function with raw strings, enhancing type safety in the restaurant domain.
+
+type User = {
+  name: UserName;
+  email: UserEmail;
+  phone: UserPhone;
+  password: UserPassword;
+};
+
+const createUser = (
+  name: UserName,
+  email: UserEmail,
+  phone: UserPhone,
+  password: UserPassword,
+): User => {
+  return {
+    name,
+    email,
+    phone,
+    password,
+  };
+};
 
 /*
 

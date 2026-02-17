@@ -1,4 +1,4 @@
-import { logError } from "./logger.js"
+import { logError } from "./logger.js";
 
 //============================================================================
 // EXERCISE 4: Business Rule Violation - Table Capacity
@@ -13,28 +13,30 @@ import { logError } from "./logger.js"
 // rules that must ALWAYS be true) are enforced in the constructor and
 // in every method that mutates state.
 //
-// HINT - Entity with private constructor:
-//   class Table {
-//       private constructor(
-//           public readonly tableNumber: number,
-//           public readonly capacity: number,
-//           private _currentGuests: number,
-//       ) {}
-//
-//       static create(tableNumber: number, capacity: number): Table {
-//           if (capacity <= 0) throw new Error("Capacity must be positive")
-//           return new Table(tableNumber, capacity, 0)
-//       }
-//
-//       get currentGuests(): number { return this._currentGuests }
-//
-//       seatGuests(count: number): void {
-//           if (count <= 0) throw new Error("Guest count must be positive")
-//           if (this._currentGuests + count > this.capacity)
-//               throw new Error("Exceeds table capacity")
-//           this._currentGuests += count
-//       }
-//   }
+// Entity with private constructor:
+class Table {
+  private constructor(
+    public readonly tableNumber: number,
+    public readonly capacity: number,
+    private _currentGuests: number,
+  ) {}
+
+  static create(tableNumber: number, capacity: number): Table {
+    if (capacity <= 0) throw new Error("Capacity must be positive");
+    return new Table(tableNumber, capacity, 0);
+  }
+
+  get currentGuests(): number {
+    return this._currentGuests;
+  }
+
+  seatGuests(count: number): void {
+    if (count <= 0) throw new Error("Guest count must be positive");
+    if (this._currentGuests + count > this.capacity)
+      throw new Error("Exceeds table capacity");
+    this._currentGuests += count;
+  }
+}
 //
 // KEY INSIGHT: The invariant (guests <= capacity) is enforced by the Entity
 // itself. External code cannot put the Entity into an invalid state because
@@ -42,36 +44,31 @@ import { logError } from "./logger.js"
 // ============================================================================
 
 export function exercise4_BusinessRuleViolation() {
-	type Table = {
-		tableNumber: number
-		capacity: number
-		currentGuests: number
-	}
+  // TODO: Replace the plain type with an Entity class that enforces
+  // capacity constraints. The constructor/factory should reject invalid
+  // states, and mutation should go through guarded methods (seatGuests).
 
-	// TODO: Replace the plain type with an Entity class that enforces
-	// capacity constraints. The constructor/factory should reject invalid
-	// states, and mutation should go through guarded methods (seatGuests).
+  const table = Table.create(5, 4);
 
-	const table: Table = {
-		tableNumber: 5,
-		capacity: 4,
-		currentGuests: 7, // Silent bug! Overcapacity
-	}
+  table.seatGuests(3); // OK
 
-	logError(4, "Table overcapacity - business rule violated", {
-		table,
-		issue: "currentGuests should never exceed capacity!",
-	})
+  try {
+    table.seatGuests(2); // This should throw an error - exceeds capacity
+  } catch (error) {
+    logError(4, "Table overcapacity - business rule violated", {
+      error: error.message,
+    });
+  }
 
-	// Another violation - negative guests
-	const emptyTable: Table = {
-		tableNumber: 3,
-		capacity: 6,
-		currentGuests: -2, // Silent bug! Negative guests
-	}
+  // Another violation - negative guests
+  const emptyTable: Table = {
+    tableNumber: 3,
+    capacity: 6,
+    currentGuests: -2, // Silent bug! Negative guests
+  };
 
-	logError(4, "Negative guest count - impossible in real world", {
-		table: emptyTable,
-		issue: "Guests cannot be negative!",
-	})
+  logError(4, "Negative guest count - impossible in real world", {
+    table: emptyTable,
+    issue: "Guests cannot be negative!",
+  });
 }
